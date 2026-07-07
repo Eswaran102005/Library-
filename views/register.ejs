@@ -1,0 +1,60 @@
+<% layout('layout') %>
+
+<div class="login-wrapper register-theme">
+    <div class="auth-card auth-register-card">
+        <div class="auth-topbar">
+            <span class="auth-chip">Register</span>
+            <span class="auth-status">Join Lib-Connect</span>
+        </div>
+
+        <h2>User Registration</h2>
+        <p class="auth-subtitle">Create your library account in seconds</p>
+        
+        <% if (locals.error_msg && error_msg.length > 0) { %>
+            <div class="alert alert-error">
+                <%= error_msg %>
+            </div>
+        <% } %>
+
+        <form action="/user/register" method="POST">
+            <div class="register-grid">
+                <div class="form-group">
+                    <label for="userId">Registration/User ID</label>
+                    <input type="text" id="userId" name="userId" placeholder="e.g. S101" required>
+                </div>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="john@uni.edu" required>
+                </div>
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="text" id="phoneNumber" name="phoneNumber" placeholder="9876543210" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">User Category</label>
+                    <select id="category" name="category" required>
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="photo">Profile Photo URL</label>
+                    <input type="text" id="photo" name="photo" placeholder="https://example.com/photo.jpg">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Min 6 chars" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-register">Register Account</button>
+            <p class="auth-footer">
+                Already have an account? <a href="/user/login">Login here</a>
+            </p>
+        </form>
+    </div>
+</div>

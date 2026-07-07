@@ -1,0 +1,43 @@
+<% layout('layout') %>
+
+<div class="user-header glass-card" style="margin-bottom: 2rem;">
+    <h2>My Book Requests</h2>
+    <p style="color: var(--text-gray);">Track the status of your requested books sent to admin.</p>
+</div>
+
+<div class="glass-card">
+    <table>
+        <thead>
+            <tr>
+                <th>Book Name</th>
+                <th>Request Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (requests.length === 0) { %>
+                <tr>
+                    <td colspan="3" style="text-align: center; color: var(--text-gray); padding: 2rem;">No requests found. Go to Library Books to request one.</td>
+                </tr>
+            <% } else { %>
+                <% requests.forEach(req => { %>
+                    <tr>
+                        <td><%= req.bookIdRef ? req.bookIdRef.name : req.bookId %></td>
+                        <td><%= req.requestDate ? req.requestDate.toDateString() : (req.createdAt ? req.createdAt.toDateString() : 'N/A') %></td>
+                        <td>
+                            <% if (req.status === 'Pending') { %>
+                                <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4);">Pending Admin Approval</span>
+                            <% } else if (req.status === 'Approved') { %>
+                                <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.4);">Approved</span>
+                            <% } else if (req.status === 'Rejected') { %>
+                                <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);">Rejected</span>
+                            <% } else { %>
+                                <span class="badge"><%= req.status %></span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } %>
+        </tbody>
+    </table>
+</div>

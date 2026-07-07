@@ -1,0 +1,46 @@
+<% layout('layout') %>
+
+<div class="login-wrapper <%= type === 'admin' ? 'admin-theme' : 'user-theme' %>">
+    <div class="auth-card">
+        <div class="auth-topbar">
+            <span class="auth-chip"><%= type === 'admin' ? 'Admin Access' : 'User Access' %></span>
+            <span class="auth-status"><%= type === 'admin' ? 'Management Portal' : 'Student Portal' %></span>
+        </div>
+
+        <h2><%= type === 'admin' ? 'Admin Login' : 'User Login' %></h2>
+        <p class="auth-subtitle"><%= type === 'admin' ? 'Access library management tools' : 'Access your personal library records' %></p>
+
+        <% if (locals.error_msg && error_msg.length > 0) { %>
+            <div class="alert alert-error">
+                <%= error_msg %>
+            </div>
+        <% } %>
+        <% if (locals.success_msg && success_msg.length > 0) { %>
+            <div class="alert alert-success">
+                <%= success_msg %>
+            </div>
+        <% } %>
+
+        <form action="/user/login" method="POST">
+            <input type="hidden" name="loginType" value="<%= type %>">
+            <div class="form-group">
+                <label for="userId"><%= type === 'admin' ? 'Admin ID / Email' : 'Registration / User ID' %></label>
+                <input type="text" id="userId" name="userId" placeholder="Enter your ID or Email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn <%= type === 'admin' ? 'btn-admin' : 'btn-user' %>">
+                <%= type === 'admin' ? 'Enter Admin Panel' : 'Enter Library' %>
+            </button>
+            <p class="auth-footer">
+                <% if (type === 'user') { %>
+                    New user? <a href="/user/register">Register here</a>
+                <% } else { %>
+                    Need user access? <a href="/user/login?type=user">Switch to User Login</a>
+                <% } %>
+            </p>
+        </form>
+    </div>
+</div>

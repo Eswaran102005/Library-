@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Campus Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <h3 style="margin:0">LIB-CONNECT</h3>
+        </div>
+        <div class="nav-links">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <% if (user.category === 'admin') { %>
+                    <a href="/admin/dashboard">Admin Panel</a>
+                <% } else { %>
+                    <a href="/user/home">Home</a>
+                    <a href="/user/books">Books</a>
+                    <a href="/user/contact">Contact</a>
+                    <a href="/user/requests">My Requests</a>
+                    <a href="/user/profile/<%= user.userId %>">My Profile</a>
+                <% } %>
+                <a href="/user/logout">Logout</a>
+            <% } else { %>
+                <a href="/user/login?type=admin">Admin Login</a>
+                <a href="/user/login?type=user">User Login</a>
+                <a href="/user/register">Register</a>
+            <% } %>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <%- body %>
+    </main>
+
+    <script>
+        // Subtle page-in animation
+        document.body.style.opacity = 0;
+        document.body.style.transition = 'opacity 0.5s ease-in';
+        window.addEventListener('load', () => {
+            document.body.style.opacity = 1;
+        });
+    </script>
+</body>
+</html>

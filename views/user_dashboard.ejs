@@ -1,0 +1,64 @@
+<% layout('layout') %>
+
+<div class="user-header glass-card" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 2rem;">
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <img src="<%= locals.profileData ? profileData.photo : '' %>" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary);">
+        <div>
+            <h2 style="margin-bottom: 0.25rem;">Welcome, <%= locals.profileData ? profileData.name : 'User' %></h2>
+            <p style="color: var(--text-gray); margin-bottom: 0.5rem;">User ID: <%= locals.profileData ? profileData.userId : 'N/A' %> | Category: <span style="text-transform: capitalize;"><%= locals.profileData ? profileData.category : 'N/A' %></span></p>
+            <a href="/user/edit-profile" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.8rem; background: rgba(255,255,255,0.1);">Edit Profile</a>
+        </div>
+    </div>
+    <div style="text-align: right;">
+        <p style="color: var(--text-gray);">Fine Balance</p>
+        <h3 style="margin:0; color: var(--accent-red);">Rs. <%= locals.transactions ? transactions.reduce((acc, tx) => acc + tx.fineAmount, 0) : 0 %></h3>
+    </div>
+</div>
+
+<% if (locals.reminders && reminders.length > 0) { %>
+    <div style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid rgba(245,158,11,0.2); display: flex; align-items: center; gap: 1rem;">
+        <div style="font-size: 1.5rem;">⚠️</div>
+        <div>
+            <strong style="display: block; margin-bottom: 0.25rem;">Return Reminder</strong>
+            <% reminders.forEach(rem => { %>
+                <p style="font-size: 0.9rem;">Book "<strong><%= rem.bookIdRef ? rem.bookIdRef.name : 'Unknown' %></strong>" is due tomorrow!</p>
+            <% }) %>
+        </div>
+    </div>
+<% } %>
+
+<div class="glass-card">
+    <h3>My Transactions</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Book Name</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Return Date</th>
+                <th>Fine</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (transactions.length === 0) { %>
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-gray);">No transactions found</td>
+                </tr>
+            <% } else { %>
+                <% transactions.forEach(tx => { %>
+                    <tr>
+                        <td><%= tx.bookIdRef ? tx.bookIdRef.name : tx.bookId %></td>
+                        <td><%= tx.issueDate.toDateString() %></td>
+                        <td><%= tx.dueDate.toDateString() %></td>
+                        <td><%= tx.returnDate ? tx.returnDate.toDateString() : '-' %></td>
+                        <td>Rs. <%= tx.fineAmount %></td>
+                        <td>
+                            <span class="badge badge-<%= tx.status.toLowerCase() %>"><%= tx.status %></span>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } %>
+        </tbody>
+    </table>
+</div>

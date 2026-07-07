@@ -1,0 +1,464 @@
+<% layout('layout') %>
+
+<% if (locals.error_msg && error_msg.length > 0) { %>
+    <div style="background: rgba(239, 68, 68, 0.1); color: #f87171; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid rgba(239,68,68,0.2);">
+        <%= error_msg %>
+    </div>
+<% } %>
+<% if (locals.success_msg && success_msg.length > 0) { %>
+    <div style="background: rgba(34, 197, 94, 0.1); color: #4ade80; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid rgba(34,197,94,0.2);">
+        <%= success_msg %>
+    </div>
+<% } %>
+
+<div class="admin-header glass-card" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <h3>Admin Control Center</h3>
+    <form action="/admin/dashboard" method="GET" style="display: flex; gap: 1rem; align-items: center;">
+        <input type="text" name="userSearch" placeholder="Search by User ID" value="<%= locals.filters ? filters.userSearch : '' %>" style="width: 150px;">
+        <input type="date" name="startDate" value="<%= locals.filters ? filters.startDate : '' %>">
+        <input type="date" name="endDate" value="<%= locals.filters ? filters.endDate : '' %>">
+        <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Filter</button>
+        <a href="/admin/dashboard" class="btn" style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem;">Reset</a>
+    </form>
+</div>
+
+<div class="admin-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <!-- Dynamic Form Area: Switches between Book Entry and User Profile -->
+    <div class="glass-card" id="form-container">
+        <% if (locals.searchedUser) { %>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+                <h3 style="color: var(--primary); margin: 0;">User Profile Form</h3>
+                <a href="/admin/dashboard" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: rgba(255,255,255,0.05);">Back to Add Book</a>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary); margin: 0 auto 0.5rem;">
+                    <img src="<%= searchedUser.photo || '/img/default-avatar.png' %>" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(searchedUser.name) %>&background=random'">
+                </div>
+                <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); font-size: 0.7rem;"><%= searchedUser.category.toUpperCase() %></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label style="color: #64748b; font-size: 0.75rem;">Full Name</label>
+                    <input type="text" value="<%= searchedUser.name %>" readonly style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">
+                </div>
+                <div class="form-group">
+                    <label style="color: #64748b; font-size: 0.75rem;">User ID</label>
+                    <input type="text" value="<%= searchedUser.userId %>" readonly style="background: rgba(255,255,255,0.05); color: var(--primary); font-weight: bold; border: 1px solid rgba(255,255,255,0.1);">
+                </div>
+                <div class="form-group">
+                    <label style="color: #64748b; font-size: 0.75rem;">Category</label>
+                    <input type="text" value="<%= searchedUser.category %>" readonly style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">
+                </div>
+                <div class="form-group">
+                    <label style="color: #64748b; font-size: 0.75rem;">Phone Number</label>
+                    <input type="text" value="<%= searchedUser.phoneNumber %>" readonly style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label style="color: #64748b; font-size: 0.75rem;">Email Address</label>
+                    <input type="text" value="<%= searchedUser.email %>" readonly style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+                 <p style="font-size: 0.75rem; color: #64748b; text-align: center; margin: 0;">* System-generated user audit record</p>
+            </div>
+
+        <% } else { %>
+            <h3 id="form-title">New Book Entry</h3>
+            <form action="/admin/add-book" method="POST" id="book-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Book ID</label>
+                        <input type="text" name="bookId" id="field-bookId" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Book Name</label>
+                        <input type="text" name="name" id="field-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" id="field-quantity" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Rate per Qty</label>
+                        <input type="number" name="ratePerQuantity" id="field-rate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Date</label>
+                        <input type="date" name="dateOfPayment" id="field-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Paid By</label>
+                        <input type="text" name="paidBy" id="field-paidBy" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submit-btn" style="width: 100%;">Register Book</button>
+                <button type="button" class="btn" onclick="resetForm()" id="cancel-btn" style="width: 100%; margin-top: 0.5rem; display:none; background: rgba(255,255,255,0.1);">Cancel Edit</button>
+            </form>
+        <% } %>
+    </div>
+
+    <!-- Issue Book Form -->
+    <div class="glass-card">
+        <h3>Issue Book</h3>
+        <form action="/admin/issue-book" method="POST">
+            <div class="form-group">
+                <label>Book ID</label>
+                <input type="text" name="bookId" required>
+            </div>
+            <div class="form-group">
+                <label>User ID</label>
+                <input type="text" name="userId" value="<%= locals.searchedUser ? searchedUser.userId : '' %>" required>
+            </div>
+            <div class="form-group">
+                <label>Due Date</label>
+                <input type="date" name="dueDate" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Issue Book</button>
+        </form>
+    </div>
+</div>
+
+<!-- Books Inventory -->
+<div class="glass-card" style="margin-top: 2rem;">
+    <h3>Library Inventory</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Available</th>
+                <th>Rate</th>
+                <th>Total Amt</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% books.forEach(book => { %>
+                <tr>
+                    <td><%= book.bookId %></td>
+                    <td><%= book.name %></td>
+                    <td><%= book.quantity %></td>
+                    <td><%= book.availableQuantity %></td>
+                    <td>Rs. <%= book.ratePerQuantity %></td>
+                    <td>Rs. <%= book.totalAmount %></td>
+                    <td>
+                        <button 
+                            data-id="<%= book._id %>"
+                            data-bookid="<%= book.bookId %>"
+                            data-name="<%= book.name %>"
+                            data-quantity="<%= book.quantity %>"
+                            data-rate="<%= book.ratePerQuantity %>"
+                            data-date="<%= book.dateOfPayment ? book.dateOfPayment.toISOString().split('T')[0] : '' %>"
+                            data-paidby="<%= book.paidBy %>"
+                            onclick="handleEdit(this)"
+                            class="btn" 
+                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--primary);">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+<!-- User Profile Modal (Implicitly handled by JS/Server) -->
+<div id="userModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content glass-card" style="max-width: 500px; padding: 2rem; position: relative; animation: slideDown 0.3s ease-out;">
+        <button onclick="closeUserModal()" style="position: absolute; right: 1rem; top: 1rem; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;">&times;</button>
+        
+        <div id="modalLoading" style="text-align: center; padding: 2rem; display: none;">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem; color: var(--text-gray);">Loading user profile...</p>
+        </div>
+
+        <div id="modalData">
+            <div style="text-align: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <h3 style="color: var(--primary); margin: 0;">User Profile</h3>
+                <p style="font-size: 0.8rem; color: var(--text-gray); margin-top: 0.5rem;">System Verified Identification</p>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary); margin: 0 auto 1rem; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);">
+                    <img id="modalUserPhoto" src="" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+                </div>
+                <span id="modalUserCategory" class="badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); padding: 0.2rem 1rem;">CATEGORY</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1.2rem;">
+                <div class="detail-row">
+                    <label style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Full Name</label>
+                    <div id="modalUserName" style="font-size: 1.1rem; color: white; font-weight: 500;">Name</div>
+                </div>
+                <div class="detail-row">
+                    <label style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">User ID</label>
+                    <div id="modalUserId" style="font-size: 1.1rem; color: var(--primary); font-weight: bold;">ID</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="detail-row">
+                        <label style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Phone</label>
+                        <div id="modalUserPhone" style="font-size: 0.95rem; color: white;">Phone</div>
+                    </div>
+                    <div class="detail-row">
+                        <label style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Email</label>
+                        <div id="modalUserEmail" style="font-size: 0.95rem; color: white; word-break: break-all;">Email</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                 <button onclick="closeUserModal()" class="btn" style="background: rgba(255,255,255,0.05); padding: 0.5rem 2rem;">Dismiss</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Requests Section -->
+<div class="glass-card" style="margin-bottom: 2rem;">
+    <h3>Pending Borrowing Requests</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Book</th>
+                <th>Request Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (requests.length === 0) { %>
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-gray);">No pending requests</td>
+                </tr>
+            <% } else { %>
+                <% requests.forEach(req => { %>
+                    <tr>
+                        <td>
+                            <a href="javascript:void(0)" 
+                               onclick="viewUserProfile('<%= req.userId %>')"
+                               style="color: var(--primary); text-decoration: none; font-weight: 500;">
+                               <%= req.userIdRef ? req.userIdRef.name : req.userId %>
+                            </a>
+                            <span style="color: var(--text-gray); font-size: 0.8rem;">(<%= req.userId %>)</span>
+                        </td>
+                        <td><%= req.bookIdRef ? req.bookIdRef.name : req.bookId %></td>
+                        <td><%= req.requestDate ? req.requestDate.toDateString() : (req.createdAt ? req.createdAt.toDateString() : 'N/A') %></td>
+                        <td>
+                            <form action="/admin/approve-request/<%= req._id %>" method="POST" style="margin:0; display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="date" name="dueDate" required style="padding: 0.3rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-size: 0.8rem;">
+                                <button type="submit" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--success); color: white; white-space: nowrap;">Approve & Issue</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<!-- Recent Transactions -->
+<div class="glass-card">
+    <h3>Recent Transactions</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>User</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Fine</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% transactions.forEach(tx => { %>
+                <tr>
+                    <td><%= tx.bookIdRef ? tx.bookIdRef.name : tx.bookId %></td>
+                    <td>
+                        <a href="javascript:void(0)" 
+                           onclick="viewUserProfile('<%= tx.userId %>')"
+                           style="color: var(--primary); text-decoration: none; font-weight: 500;">
+                           <%= tx.userIdRef ? tx.userIdRef.name : tx.userId %>
+                        </a>
+                    </td>
+                    <td><%= tx.issueDate.toDateString() %></td>
+                    <td><%= tx.dueDate.toDateString() %></td>
+                    <td>
+                        <span class="badge badge-<%= tx.status.toLowerCase() %>"><%= tx.status %></span>
+                    </td>
+                    <td>Rs. <%= tx.fineAmount %></td>
+                    <td>
+                        <% if (tx.status === 'Issued') { %>
+                            <form action="/admin/return-book" method="POST" style="display:inline;">
+                                <input type="hidden" name="transactionId" value="<%= tx._id %>">
+                                <button type="submit" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Collect</button>
+                            </form>
+                        <% } %>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+
+
+<style>
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.detail-row {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+    function handleEdit(btn) {
+        const id = btn.getAttribute('data-id');
+        const bookId = btn.getAttribute('data-bookid');
+        const name = btn.getAttribute('data-name');
+        const quantity = btn.getAttribute('data-quantity');
+        const rate = btn.getAttribute('data-rate');
+        const date = btn.getAttribute('data-date');
+        const paidBy = btn.getAttribute('data-paidby');
+        
+        editBook(id, bookId, name, quantity, rate, date, paidBy);
+    }
+
+    function editBook(id, bookId, name, quantity, rate, date, paidBy) {
+        const form = document.getElementById('book-form');
+        const title = document.getElementById('form-title');
+        const submitBtn = document.getElementById('submit-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const bookIdField = document.getElementById('field-bookId');
+
+        form.action = '/admin/update-book/' + id;
+        title.innerText = 'Update Book: ' + bookId;
+        submitBtn.innerText = 'Save Changes';
+        cancelBtn.style.display = 'block';
+        bookIdField.readOnly = true;
+
+        document.getElementById('field-bookId').value = bookId;
+        document.getElementById('field-name').value = name;
+        document.getElementById('field-quantity').value = quantity;
+        document.getElementById('field-rate').value = rate;
+        document.getElementById('field-date').value = date;
+        document.getElementById('field-paidBy').value = paidBy;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+        const form = document.getElementById('book-form');
+        const title = document.getElementById('form-title');
+        const submitBtn = document.getElementById('submit-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const bookIdField = document.getElementById('field-bookId');
+
+        form.action = '/admin/add-book';
+        form.reset();
+        title.innerText = 'New Book Entry';
+        submitBtn.innerText = 'Register Book';
+        cancelBtn.style.display = 'none';
+        bookIdField.readOnly = false;
+    }
+
+    async function viewUserProfile(userId) {
+        const modal = document.getElementById('userModal');
+        const loading = document.getElementById('modalLoading');
+        const content = document.getElementById('modalData');
+        
+        modal.style.display = 'flex';
+        loading.style.display = 'block';
+        content.style.display = 'none';
+
+        try {
+            // Check if we already have the searched user data globally (from EJS)
+            // If it's the same ID, we can just use that, otherwise fetch
+            const response = await fetch('/admin/user-details/' + userId);
+            const user = await response.json();
+
+            if (user) {
+                document.getElementById('modalUserName').innerText = user.name;
+                document.getElementById('modalUserId').innerText = user.userId;
+                document.getElementById('modalUserCategory').innerText = user.category.toUpperCase();
+                document.getElementById('modalUserPhone').innerText = user.phoneNumber;
+                document.getElementById('modalUserEmail').innerText = user.email;
+                document.getElementById('modalUserPhoto').src = user.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+                
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            alert('Could not load user profile');
+            closeUserModal();
+        }
+    }
+
+    function closeUserModal() {
+        document.getElementById('userModal').style.display = 'none';
+    }
+
+    // Auto-open modal if server passed searchedUser
+    <% if (locals.searchedUser) { %>
+        document.addEventListener('DOMContentLoaded', () => {
+            // We can populate directly from the EJS object passed to the client
+            const user = <%- JSON.stringify(searchedUser) %>;
+            document.getElementById('modalUserName').innerText = user.name;
+            document.getElementById('modalUserId').innerText = user.userId;
+            document.getElementById('modalUserCategory').innerText = user.category.toUpperCase();
+            document.getElementById('modalUserPhone').innerText = user.phoneNumber;
+            document.getElementById('modalUserEmail').innerText = user.email;
+            document.getElementById('modalUserPhoto').src = user.photo || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+            
+            document.getElementById('userModal').style.display = 'flex';
+            document.getElementById('modalLoading').style.display = 'none';
+            document.getElementById('modalData').style.display = 'block';
+        });
+    <% } %>
+</script>

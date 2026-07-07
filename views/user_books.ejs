@@ -1,0 +1,45 @@
+<% layout('layout') %>
+
+<div class="user-header glass-card" style="margin-bottom: 2rem;">
+    <h2>My Assigned Books</h2>
+    <p style="color: var(--text-gray);">Details of all the books that have been assigned to you by the Admin.</p>
+</div>
+
+<div class="glass-card">
+    <table>
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Book Name</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Fine Accumulated</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (transactions.length === 0) { %>
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-gray); padding: 2rem;">No books have been assigned to you yet.</td>
+                </tr>
+            <% } else { %>
+                <% transactions.forEach(tx => { %>
+                    <tr>
+                        <td><span style="font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 4px;"><%= tx.bookIdRef ? tx.bookIdRef.bookId : tx.bookId %></span></td>
+                        <td style="font-weight: 500;"><%= tx.bookIdRef ? tx.bookIdRef.name : tx.bookId %></td>
+                        <td><%= tx.issueDate.toDateString() %></td>
+                        <td style="color: <%= (new Date() > new Date(tx.dueDate) && tx.status === 'Issued') ? 'var(--accent-red)' : 'inherit' %>;">
+                            <%= tx.dueDate.toDateString() %>
+                        </td>
+                        <td>
+                            <span class="badge badge-<%= tx.status.toLowerCase() %>"><%= tx.status %></span>
+                        </td>
+                        <td style="color: <%= tx.fineAmount > 0 ? 'var(--accent-red)' : 'inherit' %>;">
+                            Rs. <%= tx.fineAmount %>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } %>
+        </tbody>
+    </table>
+</div>
